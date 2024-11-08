@@ -1,6 +1,7 @@
 const sequelize = require('./config'); // Asegúrate de que el archivo config.js esté configurado correctamente
 const User = require('./models/User'); // Modelo de usuario
 const { faker } = require('@faker-js/faker'); // Faker.js para generar datos aleatorios
+//Hola muundo
 
 async function createUsers() {
     try {
