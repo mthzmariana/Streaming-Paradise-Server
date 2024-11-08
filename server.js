@@ -1,7 +1,9 @@
 const express = require('express');
-const cors = require('cors'); // Importa cors
+const cors = require('cors');
 const sequelize = require('./config');
 require('dotenv').config();
+
+// Importar rutas
 const userRoutes = require('./routes/userRoutes');
 const chartsRoutes = require('./routes/chartsRoutes');
 const videoRoutes = require('./routes/videoRoutes');
@@ -15,14 +17,15 @@ const roleRoutes = require('./routes/roleRoutes'); // Importar rutas de roles
 const permissionRoutes = require('./routes/permissionRoutes'); // Importar rutas de permisos
 const rolePermissionRoutes = require('./routes/rolePermissionRoutes'); // Importar rutas de Role-Permiso
 const contactRoutes = require('./routes/contact'); // Importar rutas de contacto
+const paymentRoutes = require('./routes/paymentRoutes'); // Importa la ruta de pagos
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Habilitar CORS para aceptar solicitudes desde cualquier origen
 app.use(cors({
-  origin: '*', // Permitir cualquier origen
-  credentials: true, // Si necesitas manejar cookies/autenticación
+  origin: '*',
+  credentials: true,
 }));
 
 // Middlewares
@@ -41,9 +44,11 @@ app.use('/roles', roleRoutes); // Usa las rutas de roles
 app.use('/permissions', permissionRoutes); // Usa las rutas de permisos
 app.use('/role-permission', rolePermissionRoutes); // Usa las rutas de Role-Permiso
 app.use('/api/contact', contactRoutes); // Usa las rutas de contacto
+app.use('/payments', paymentRoutes); // Usa la ruta de pagos
 
 // Graficas Yaneli
 app.use(chartsRoutes)
+
 
 // Verifica la conexión con la base de datos y arranca el servidor
 sequelize.authenticate()
