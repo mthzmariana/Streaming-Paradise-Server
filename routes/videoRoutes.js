@@ -112,5 +112,27 @@ router.get('/videos/:idvideo', async (req, res) => {
   }
 });
 
+// Incrementar el contador de vistas para un video específico
+router.post('/increment-views/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Busca el video en la base de datos usando el campo idvideo
+    const video = await Video.findOne({ where: { idvideo: id } });
+
+    if (!video) {
+      return res.status(404).json({ message: 'Video no encontrado' });
+    }
+
+    // Incrementa el contador de vistas
+    video.views += 1;
+    await video.save();
+
+    res.status(200).json({ message: 'Visitas incrementadas', views: video.views });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al incrementar las visitas' });
+  }
+});
+
 
 module.exports = router;
