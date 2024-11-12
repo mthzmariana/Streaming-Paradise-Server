@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { Op } = require('sequelize');
 const Video = require('../models/Video');
 
 // Crear un nuevo video
@@ -22,15 +23,42 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// Obtener todos los videos
+// Obtener todos los videos o filtrar por género excluyendo el video actual
 router.get('/', async (req, res) => {
   try {
-    const videos = await Video.findAll();
+    const { genero, excludeId } = req.query; // Obtener género y ID a excluir
+
+    // Filtro condicional basado en el género y excluyendo el video actual
+    const videos = await Video.findAll({
+      where: {
+        ...(genero ? { genero } : {}),
+        ...(excludeId ? { idvideo: { [Op.ne]: parseInt(excludeId) } } : {}), // Asegurarse de que excludeId sea un número
+      },
+    });
+
     res.json(videos);
+  } catch (error) {
+    console.error("Error al obtener videos:", error); // Registrar el error en el servidor
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint para obtener los géneros únicos
+router.get('/genres', async (req, res) => {
+  try {
+    const genres = await Video.findAll({
+      attributes: ['genero'],
+      group: ['genero']
+    });
+
+    const genreList = genres.map(genre => genre.genero);
+    res.json(genreList);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
+module.exports = router;
 
 // Obtener un video por su ID
 router.get('/:id', async (req, res) => {
@@ -133,6 +161,5 @@ router.post('/increment-views/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al incrementar las visitas' });
   }
 });
-
 
 module.exports = router;
