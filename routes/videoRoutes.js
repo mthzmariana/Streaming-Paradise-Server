@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Video = require('../models/Video');
+const User = require('../models/User');
 
 // Crear un nuevo video
 router.post('/create', async (req, res) => {
@@ -22,15 +23,22 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// Obtener todos los videos
-router.get('/', async (req, res) => {
+// Obtener todos los videos con el nombre del creador
+router.get('/catalogo', async (req, res) => {
   try {
-    const videos = await Video.findAll();
+    const videos = await Video.findAll({
+      include: {
+        model: User,
+        as: 'creator',
+        attributes: ['name']  // Traemos solo el campo 'name' del creador
+      }
+    });
     res.json(videos);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // Obtener un video por su ID
 router.get('/:id', async (req, res) => {
@@ -62,7 +70,7 @@ router.put('/:id', async (req, res) => {
       { where: { idvideo: id } }
     );
 
-    if (updatedVideo[0] === 0) {
+    if (!updatedVideo || updatedVideo[0] === 0) {
       return res.status(404).json({ message: 'Video no encontrado' });
     }
 
@@ -77,18 +85,23 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Eliminar el video
-    const deletedVideo = await Video.destroy({ where: { idvideo: id } });
+    // Verifica si el video existe antes de intentar eliminarlo
+    const video = await Video.findOne({ where: { idvideo: id } });
 
-    if (!deletedVideo) {
+    if (!video) {
       return res.status(404).json({ message: 'Video no encontrado' });
     }
 
-    res.json({ message: 'Video eliminado' });
+    // Si el video existe, procedemos a eliminarlo
+    await Video.destroy({ where: { idvideo: id } });
+
+    res.json({ message: 'Video eliminado exitosamente' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error eliminando el video:", error);
+    res.status(500).json({ error: 'Ocurrió un error al intentar eliminar el video' });
   }
 });
+
 
 // Obtener comentarios de un video específico con el nombre del usuario
 router.get('/videos/:idvideo', async (req, res) => {
@@ -133,6 +146,27 @@ router.post('/increment-views/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al incrementar las visitas' });
   }
 });
+
+// Obtener todos los videos de un usuario específico
+router.get('/user/:creatorId', async (req, res) => {
+  try {
+    const { creatorId } = req.params;  // Obtener el creatorId desde los parámetros de la ruta
+
+    // Buscar los videos del usuario con el creatorId proporcionado
+    const videos = await Video.findAll({
+      where: { creatorId: creatorId }  // Filtrar por el creatorId
+    });
+
+    if (videos.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron videos para este usuario' });
+    }
+
+    res.json(videos);  // Devolver los videos encontrados
+  } catch (error) {
+    res.status(500).json({ error: error.message });  // Manejo de errores
+  }
+});
+
 
 
 module.exports = router;
