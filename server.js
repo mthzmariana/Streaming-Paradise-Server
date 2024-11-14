@@ -45,6 +45,7 @@ app.use('/permissions', permissionRoutes); // Usa las rutas de permisos
 app.use('/role-permission', rolePermissionRoutes); // Usa las rutas de Role-Permiso
 app.use('/api/contact', contactRoutes); // Usa las rutas de contacto
 app.use('/payments', paymentRoutes); // Usa la ruta de pagos
+app.use(contactRoutes)
 
 // Graficas Yaneli
 app.use(chartsRoutes)

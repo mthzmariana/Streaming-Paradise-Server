@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config');
+const User = require('./User'); // Importa el modelo de Usuario
 
 const Video = sequelize.define('Video', {
     idvideo: {
@@ -37,4 +38,5 @@ const Video = sequelize.define('Video', {
     tableName: 'videos'
 });
 
+Video.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
 module.exports = Video;
