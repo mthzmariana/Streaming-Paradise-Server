@@ -44,6 +44,24 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Obtener todos los videos con el nombre del creador
+// router.get('/catalogo', async (req, res) => {
+//   try {
+//     const videos = await Video.findAll({
+//       include: {
+//         model: User,
+//         as: 'creator',
+//         attributes: ['name']  // Traemos solo el campo 'name' del creador
+//       }
+//     });
+//     res.json(videos);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+
 
 // Endpoint para obtener los géneros únicos
 router.get('/genres', async (req, res) => {
@@ -189,15 +207,5 @@ router.get('/user/:creatorId', async (req, res) => {
   }
 });
 
-// Obtener todos los videos con el nombre del creador
-//router.get('/catalogo', async (req, res) => {
-//  try {
-//    const videos = await Video.findAll({
-//      include: {
-//        model: User,
-//        as: 'creator',
-//        attributes: ['name']  // Traemos solo el campo 'name' del creador
-//      }
-//    });
 
 module.exports = router;
