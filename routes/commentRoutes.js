@@ -215,4 +215,159 @@ router.get('/top-interacciones/:creatorId', async (req, res) => {
   }
 });
 
+// Ruta para obtener el GENERO que más han visto los videos
+router.get('/usergenero/:creatorId', async (req, res) => {
+  try {
+    // Obtener el creatorId de los parámetros de la solicitud
+    const creatorId = req.params.creatorId;
+
+    // Ejecutar la consulta SQL utilizando Sequelize
+    const results = await sequelize.query(
+      ` SELECT u.genero AS genero_usuario, COUNT(DISTINCT r.idvideo) AS videos_vistos
+    FROM videos v
+    JOIN reseña r ON v.idvideo = r.idvideo
+    JOIN users u ON r.iduser = u.id
+    WHERE v.creatorId = :creatorId
+    GROUP BY u.genero
+    ORDER BY videos_vistos DESC;`,
+      {
+        replacements: { creatorId }, // Paso del creatorId de manera segura
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Enviar los resultados como respuesta en formato JSON
+    res.json(results);
+  } catch (error) {
+    console.error('Error al obtener las generos:', error);
+    res.status(500).json({ message: error.message }); // Manejo de errores
+  }
+});
+
+// Ruta para obtener el porcentaje de lo paises que más han visto los videos
+router.get('/userpais/:creatorId', async (req, res) => {
+  try {
+    // Obtener el creatorId de los parámetros de la solicitud
+    const creatorId = req.params.creatorId;
+
+    // Ejecutar la consulta SQL utilizando Sequelize
+    const results = await sequelize.query(
+      ` SELECT 
+    u.country AS pais,
+    COUNT(DISTINCT u.id) AS usuarios_unicos,
+    ROUND((COUNT(DISTINCT u.id) * 100.0 / 
+           (SELECT COUNT(DISTINCT r.iduser) 
+            FROM reseña r
+            JOIN videos v ON r.idvideo = v.idvideo
+            WHERE v.creatorId = :creatorId)), 2) AS porcentaje_usuarios
+      FROM videos v
+      JOIN reseña r ON v.idvideo = r.idvideo
+      JOIN users u ON r.iduser = u.id
+      WHERE v.creatorId = :creatorId
+      GROUP BY u.country
+      ORDER BY porcentaje_usuarios DESC;`,
+      {
+        replacements: { creatorId }, // Paso del creatorId de manera segura
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Enviar los resultados como respuesta en formato JSON
+    res.json(results);
+  } catch (error) {
+    console.error('Error al obtener las paises:', error);
+    res.status(500).json({ message: error.message }); // Manejo de errores
+  }
+});
+
+
+
+router.get('/views/:creatorId', async (req, res) => {
+  try {
+    // Obtener el creatorId de los parámetros de la solicitud
+    const creatorId = req.params.creatorId;
+
+    // Ejecutar la consulta SQL utilizando Sequelize
+    const results = await sequelize.query(
+      ` SELECT 
+    SUM(v.views) AS total_visualizaciones
+    FROM videos v
+    WHERE v.creatorId = :creatorId;`,
+      {
+        replacements: { creatorId }, // Paso del creatorId de manera segura
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Enviar los resultados como respuesta en formato JSON
+    res.json(results);
+  } catch (error) {
+    console.error('Error al obtener las views:', error);
+    res.status(500).json({ message: error.message }); // Manejo de errores
+  }
+});
+
+router.get('/users/:creatorId', async (req, res) => {
+  try {
+    // Obtener el creatorId de los parámetros de la solicitud
+    const creatorId = req.params.creatorId;
+
+    // Ejecutar la consulta SQL utilizando Sequelize
+    const results = await sequelize.query(
+          ` SELECT COUNT(DISTINCT u.id) AS total_usuarios
+        FROM users u
+        LEFT JOIN reseña r ON u.id = r.iduser
+        LEFT JOIN ratings rt ON u.id = rt.iduser
+        LEFT JOIN videos v ON (r.idvideo = v.idvideo OR rt.idvideo = v.idvideo)
+        WHERE v.creatorId = :creatorId
+        OR r.idvideo IN (SELECT idvideo FROM videos WHERE creatorId = :creatorId)
+        OR rt.idvideo IN (SELECT idvideo FROM videos WHERE creatorId = :creatorId);`,
+      {
+        replacements: { creatorId }, // Paso del creatorId de manera segura
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Enviar los resultados como respuesta en formato JSON
+    res.json(results);
+  } catch (error) {
+    console.error('Error al obtener las views:', error);
+    res.status(500).json({ message: error.message }); // Manejo de errores
+  }
+});
+
+
+router.get('/generovideo/:creatorId', async (req, res) => {
+  try {
+    // Obtener el creatorId de los parámetros de la solicitud
+    const creatorId = req.params.creatorId;
+
+    // Ejecutar la consulta SQL utilizando Sequelize
+    const results = await sequelize.query(
+      ` SELECT 
+    v.genero AS genero_video,
+    SUM(v.views) AS total_vistas,
+    ROUND((SUM(v.views) * 100.0 / 
+           (SELECT SUM(views) 
+            FROM videos 
+            WHERE creatorId = :creatorId)), 2) AS porcentaje_vistas
+    FROM videos v
+    WHERE v.creatorId = :creatorId
+    GROUP BY v.genero
+    ORDER BY porcentaje_vistas DESC;`,
+      {
+        replacements: { creatorId }, // Paso del creatorId de manera segura
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Enviar los resultados como respuesta en formato JSON
+    res.json(results);
+  } catch (error) {
+    console.error('Error al obtener las generos:', error);
+    res.status(500).json({ message: error.message }); // Manejo de errores
+  }
+});
+
+
 module.exports = router;
