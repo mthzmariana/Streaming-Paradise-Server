@@ -3,7 +3,7 @@ const router = express.Router();
 const { Op } = require('sequelize');
 const Video = require('../models/Video');
 
-// Crear un nuevo video
+// Crear un nuevo video.
 router.post('/create', async (req, res) => {
   try {
     const { title, url, creatorId, descripcion, genero } = req.body;
