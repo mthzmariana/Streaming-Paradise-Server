@@ -189,6 +189,134 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error al eliminar el usuario' });
   }
 });
+router.post('/update-role', async (req, res) => {
+  try {
+    console.log('Recibida solicitud de actualización de rol:', req.body);
+    const { userId, new_role } = req.body;
 
+    if (!userId || !new_role) {
+      console.log('Faltan datos requeridos:', { userId, new_role });
+      return res.status(400).json({ 
+        message: 'Faltan datos requeridos',
+        received: { userId, new_role }
+      });
+    }
+
+    // Buscar usuario por ID
+    const user = await User.findByPk(userId);
+
+    console.log('Usuario encontrado:', user ? user.toJSON() : null);
+
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'Usuario no encontrado',
+        userId_received: userId 
+      });
+    }
+
+    // Actualizar el rol
+    const previousRole = user.idrol;
+    await user.update({ idrol: new_role });
+    
+    // Verificar que la actualización fue exitosa
+    await user.reload();
+    
+    console.log('Actualización de rol:', {
+      previous: previousRole,
+      new: user.idrol,
+      success: user.idrol === new_role
+    });
+
+    // Obtener el usuario actualizado
+    const updatedUser = await User.findByPk(userId, {
+      attributes: ['id', 'name', 'email', 'idrol']
+    });
+
+    res.status(200).json({
+      message: 'Rol actualizado exitosamente',
+      user: updatedUser,
+      update_details: {
+        previous_role: previousRole,
+        new_role: user.idrol
+      }
+    });
+
+  } catch (error) {
+    console.error('Error completo al actualizar el rol:', error);
+    res.status(500).json({ 
+      message: 'Error al actualizar el rol del usuario',
+      error: {
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }
+    });
+  }
+});
+
+// Ruta en el backend para actualizar el rol de un usuario
+// Ruta en el backend para actualizar el rol de un usuario
+router.post('/update-role', async (req, res) => {
+  try {
+    console.log('Recibida solicitud de actualización de rol:', req.body);
+    const { userId, new_role } = req.body;
+
+    if (!userId || !new_role) {
+      console.log('Faltan datos requeridos:', { userId, new_role });
+      return res.status(400).json({ 
+        message: 'Faltan datos requeridos',
+        received: { userId, new_role }
+      });
+    }
+
+    // Buscar usuario por ID
+    const user = await User.findByPk(userId);
+
+    console.log('Usuario encontrado:', user ? user.toJSON() : null);
+
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'Usuario no encontrado',
+        userId_received: userId 
+      });
+    }
+
+    // Actualizar el rol
+    const previousRole = user.idrol;
+    await user.update({ idrol: new_role });
+    
+    // Verificar que la actualización fue exitosa
+    await user.reload();
+    
+    console.log('Actualización de rol:', {
+      previous: previousRole,
+      new: user.idrol,
+      success: user.idrol === new_role
+    });
+
+    // Obtener el usuario actualizado
+    const updatedUser = await User.findByPk(userId, {
+      attributes: ['id', 'name', 'email', 'idrol']
+    });
+
+    res.status(200).json({
+      message: 'Rol actualizado exitosamente',
+      user: updatedUser,
+      update_details: {
+        previous_role: previousRole,
+        new_role: user.idrol
+      }
+    });
+
+  } catch (error) {
+    console.error('Error completo al actualizar el rol:', error);
+    res.status(500).json({ 
+      message: 'Error al actualizar el rol del usuario',
+      error: {
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }
+    });
+  }
+});
 
 module.exports = router;
