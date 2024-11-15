@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config');
+const User = require('./User'); // Importa el modelo de Usuario
 
 const Video = sequelize.define('Video', {
     idvideo: {
@@ -15,21 +16,27 @@ const Video = sequelize.define('Video', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    creatorId: {  // Nuevo campo para el creador del video
+    creatorId: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    descripcion: {  // Nuevo campo para la descripción del video
+    descripcion: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    genero: {  // Nuevo campo para el género del video
+    genero: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    views: {  // Campo para contar las visitas
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }, {
     timestamps: false,
     tableName: 'videos'
 });
 
+Video.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
 module.exports = Video;

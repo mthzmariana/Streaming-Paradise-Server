@@ -13,9 +13,10 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const purchaseRoutes = require('./routes/purchaseRoutes');
 const offerRoutes = require('./routes/offerRoutes');
-const roleRoutes = require('./routes/roleRoutes');
-const permissionRoutes = require('./routes/permissionRoutes');
-const rolePermissionRoutes = require('./routes/rolePermissionRoutes');
+const roleRoutes = require('./routes/roleRoutes'); // Importar rutas de roles
+const permissionRoutes = require('./routes/permissionRoutes'); // Importar rutas de permisos
+const rolePermissionRoutes = require('./routes/rolePermissionRoutes'); // Importar rutas de Role-Permiso
+const contactRoutes = require('./routes/contact'); // Importar rutas de contacto
 const paymentRoutes = require('./routes/paymentRoutes'); // Importa la ruta de pagos
 
 const app = express();
@@ -39,13 +40,16 @@ app.use('/subscriptions', subscriptionRoutes);
 app.use('/coupons', couponRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/offers', offerRoutes);
-app.use('/roles', roleRoutes);
-app.use('/permissions', permissionRoutes);
-app.use('/role-permission', rolePermissionRoutes);
+app.use('/roles', roleRoutes); // Usa las rutas de roles
+app.use('/permissions', permissionRoutes); // Usa las rutas de permisos
+app.use('/role-permission', rolePermissionRoutes); // Usa las rutas de Role-Permiso
+app.use('/api/contact', contactRoutes); // Usa las rutas de contacto
 app.use('/payments', paymentRoutes); // Usa la ruta de pagos
+app.use(contactRoutes)
 
-// Rutas de gráficas (charts) Yaneli
-app.use(chartsRoutes);
+// Graficas Yaneli
+app.use(chartsRoutes)
+
 
 // Verifica la conexión con la base de datos y arranca el servidor
 sequelize.authenticate()
@@ -59,5 +63,3 @@ sequelize.authenticate()
     });
   })
   .catch((err) => console.error('Error al conectar con la base de datos:', err));
-
-  
